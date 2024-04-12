@@ -1,16 +1,22 @@
+import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+import 'package:flutter_application_1/models/webtoon_model.dart';
 
 class ApiService {
   final String baseUrl = "https://webtoon-crawler.nomadcoders.workers.dev";
   final String today = "today";
 
-  void getTodaysToons() async {
+  Future<List<webtoonModel>> getTodaysToons() async {
+    List<webtoonModel> webtoonInstances = [];
     final url = Uri.parse('$baseUrl/$today');
-    final response = await http.get(url); //함수 내에서만 await사용 가능하다
-    //awit사용 이유: .get이 future는 미래에 값을 반환한다는 의미. <response> 타입
+    final response = await http.get(url);
     if (response.statusCode == 200) {
-      print(response.body);
-      return;
+      final List<dynamic> webtoons = jsonDecode(response.body);
+      for (var webtoon in webtoons) {
+        webtoonInstances.add(webtoonModel.fromJson(webtoon));
+      }
+      return webtoonInstances;
     }
     throw Error();
   }
